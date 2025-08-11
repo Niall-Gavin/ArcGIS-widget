@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget id="se team.arcwidget.ArcWidget" pluginWidget="true" needsEntityContext="false" offlineCapable="false"
+        supportedPlatform="Web"
+        xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
+    <name>ArcGIS Map</name>
+    <description>ArcGIS Map widget for displaying interactive maps with basic functionality</description>
+    <icon/>
+    <properties>
+        <propertyGroup caption="Map Configuration">
+            <property key="apiKey" type="string" required="false">
+                <caption>API Key</caption>
+                <description>ArcGIS API Key for accessing premium content and services</description>
+            </property>
+            <property key="basemap" type="enumeration" defaultValue="streetsnavigation">
+                <caption>Basemap</caption>
+                <description>Choose the basemap for the map</description>
+                <enumerationValues>
+                    <enumerationValue key="streetsnavigation">Streets Navigation</enumerationValue>
+                    <enumerationValue key="streets">Streets</enumerationValue>
+                    <enumerationValue key="satellite">Satellite</enumerationValue>
+                    <enumerationValue key="hybrid">Hybrid</enumerationValue>
+                    <enumerationValue key="topo">Topographic</enumerationValue>
+                    <enumerationValue key="gray">Gray Canvas</enumerationValue>
+                    <enumerationValue key="darkgray">Dark Gray Canvas</enumerationValue>
+                    <enumerationValue key="oceans">Oceans</enumerationValue>
+                </enumerationValues>
+            </property>
+            <property key="centerLat" type="decimal" defaultValue="39.8283">
+                <caption>Center Latitude</caption>
+                <description>Initial center latitude of the map</description>
+            </property>
+            <property key="centerLon" type="decimal" defaultValue="-98.5795">
+                <caption>Center Longitude</caption>
+                <description>Initial center longitude of the map</description>
+            </property>
+            <property key="zoomLevel" type="integer" defaultValue="4">
+                <caption>Zoom Level</caption>
+                <description>Initial zoom level of the map (1-20)</description>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Appearance">
+            <property key="widgetHeight" type="integer" defaultValue="400">
+                <caption>Height (px)</caption>
+                <description>Height of the map widget in pixels</description>
+            </property>
+            <property key="showZoomControls" type="boolean" defaultValue="true">
+                <caption>Show Zoom Controls</caption>
+                <description>Display zoom in/out controls on the map</description>
+            </property>
+            <property key="showAttribution" type="boolean" defaultValue="true">
+                <caption>Show Attribution</caption>
+                <description>Display attribution information</description>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Data Source">
+            <property key="dataSource" type="datasource" isList="true" required="false">
+                <caption>Data Source</caption>
+                <description>Data source containing locations to display on the map</description>
+            </property>
+            <property key="latitudeAttribute" type="attribute" dataSource="dataSource" required="false">
+                <caption>Latitude Attribute</caption>
+                <description>Attribute containing latitude coordinates</description>
+                <attributeTypes>
+                    <attributeType name="Decimal"/>
+                    <attributeType name="Integer"/>
+                </attributeTypes>
+            </property>
+            <property key="longitudeAttribute" type="attribute" dataSource="dataSource" required="false">
+                <caption>Longitude Attribute</caption>
+                <description>Attribute containing longitude coordinates</description>
+                <attributeTypes>
+                    <attributeType name="Decimal"/>
+                    <attributeType name="Integer"/>
+                </attributeTypes>
+            </property>
+            <property key="titleAttribute" type="attribute" dataSource="dataSource" required="false">
+                <caption>Title Attribute</caption>
+                <description>Attribute to use as the title/name for map markers</description>
+                <attributeTypes>
+                    <attributeType name="String"/>
+                </attributeTypes>
+            </property>
+            <property key="markerColor" type="enumeration" defaultValue="blue">
+                <caption>Marker Color</caption>
+                <description>Color of the map markers</description>
+                <enumerationValues>
+                    <enumerationValue key="blue">Blue</enumerationValue>
+                    <enumerationValue key="red">Red</enumerationValue>
+                    <enumerationValue key="green">Green</enumerationValue>
+                    <enumerationValue key="yellow">Yellow</enumerationValue>
+                    <enumerationValue key="orange">Orange</enumerationValue>
+                    <enumerationValue key="purple">Purple</enumerationValue>
+                </enumerationValues>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Widgets">
+            <property key="enableSearch" type="boolean" defaultValue="true">
+                <caption>Enable Search</caption>
+                <description>Add a search widget to find locations by address</description>
+            </property>
+            <property key="searchStartExpanded" type="boolean" defaultValue="false">
+                <caption>Search Start Expanded</caption>
+                <description>Whether the search box is expanded on first load</description>
+            </property>
+            <property key="searchPosition" type="enumeration" defaultValue="topright">
+                <caption>Search Position</caption>
+                <description>Position of the search widget on the map</description>
+                <enumerationValues>
+                    <enumerationValue key="topright">Top Right</enumerationValue>
+                    <enumerationValue key="topleft">Top Left</enumerationValue>
+                    <enumerationValue key="bottomright">Bottom Right</enumerationValue>
+                    <enumerationValue key="bottomleft">Bottom Left</enumerationValue>
+                </enumerationValues>
+            </property>
+            <property key="enableBasemapToggle" type="boolean" defaultValue="false">
+                <caption>Enable Basemap Toggle</caption>
+                <description>Add a basemap gallery to switch between different basemaps</description>
+            </property>
+            <property key="basemapTogglePosition" type="enumeration" defaultValue="bottomleft">
+                <caption>Basemap Toggle Position</caption>
+                <description>Position of the basemap toggle on the map</description>
+                <enumerationValues>
+                    <enumerationValue key="topright">Top Right</enumerationValue>
+                    <enumerationValue key="topleft">Top Left</enumerationValue>
+                    <enumerationValue key="bottomright">Bottom Right</enumerationValue>
+                    <enumerationValue key="bottomleft">Bottom Left</enumerationValue>
+                </enumerationValues>
+            </property>
+            <property key="enableLegend" type="boolean" defaultValue="false">
+                <caption>Enable Legend</caption>
+                <description>Add a legend widget to show map symbols and their meanings</description>
+            </property>
+            <property key="legendPosition" type="enumeration" defaultValue="bottomright">
+                <caption>Legend Position</caption>
+                <description>Position of the legend widget on the map</description>
+                <enumerationValues>
+                    <enumerationValue key="topright">Top Right</enumerationValue>
+                    <enumerationValue key="topleft">Top Left</enumerationValue>
+                    <enumerationValue key="bottomright">Bottom Right</enumerationValue>
+                    <enumerationValue key="bottomleft">Bottom Left</enumerationValue>
+                </enumerationValues>
+            </property>
+            <property key="legendStartExpanded" type="boolean" defaultValue="false">
+                <caption>Legend Start Expanded</caption>
+                <description>Whether the legend is expanded on first load</description>
+            </property>
+            <property key="enableLayerToggle" type="boolean" defaultValue="false">
+                <caption>Enable Layer Toggle</caption>
+                <description>Add a layer list widget to toggle visibility of map layers</description>
+            </property>
+            <property key="layerToggleStartExpanded" type="boolean" defaultValue="false">
+                <caption>Layer Toggle Start Expanded</caption>
+                <description>Whether the layer list is expanded on first load</description>
+            </property>
+            <property key="layerTogglePosition" type="enumeration" defaultValue="topright">
+                <caption>Layer Toggle Position</caption>
+                <description>Position of the layer toggle widget on the map</description>
+                <enumerationValues>
+                    <enumerationValue key="topright">Top Right</enumerationValue>
+                    <enumerationValue key="topleft">Top Left</enumerationValue>
+                    <enumerationValue key="bottomright">Bottom Right</enumerationValue>
+                    <enumerationValue key="bottomleft">Bottom Left</enumerationValue>
+                </enumerationValues>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Dynamic Layers">
+            <property key="dynamicLayerSource" type="datasource" isList="true" required="false">
+                <caption>Dynamic Layer Data Source</caption>
+                <description>Data source containing layer configurations to dynamically load on the map</description>
+            </property>
+            <property key="layerIdAttribute" type="attribute" dataSource="dynamicLayerSource" required="false">
+                <caption>Layer ID</caption>
+                <description>Unique identifier for the layer</description>
+                <attributeTypes>
+                    <attributeType name="String"/>
+                </attributeTypes>
+            </property>
+            <property key="layerUrlAttribute" type="attribute" dataSource="dynamicLayerSource" required="false">
+                <caption>Layer URL</caption>
+                <description>URL of the ArcGIS service (FeatureServer, MapServer, etc.)</description>
+                <attributeTypes>
+                    <attributeType name="String"/>
+                </attributeTypes>
+            </property>
+            <property key="layerTypeAttribute" type="attribute" dataSource="dynamicLayerSource" required="false">
+                <caption>Layer Type</caption>
+                <description>Type of layer service (FeatureServer, MapServer, WMS, etc.)</description>
+                <attributeTypes>
+                    <attributeType name="String"/>
+                    <attributeType name="Enum"/>
+                </attributeTypes>
+            </property>
+            <property key="layerTitleAttribute" type="attribute" dataSource="dynamicLayerSource" required="false">
+                <caption>Layer Title</caption>
+                <description>Display name for the layer in the layer list</description>
+                <attributeTypes>
+                    <attributeType name="String"/>
+                </attributeTypes>
+            </property>
+            <property key="layerVisibleAttribute" type="attribute" dataSource="dynamicLayerSource" required="false">
+                <caption>Visible on Load</caption>
+                <description>Whether the layer should be visible when first loaded</description>
+                <attributeTypes>
+                    <attributeType name="Boolean"/>
+                </attributeTypes>
+            </property>
+            <property key="layerOpacityAttribute" type="attribute" dataSource="dynamicLayerSource" required="false">
+                <caption>Layer Opacity</caption>
+                <description>Opacity of the layer (0.0 to 1.0)</description>
+                <attributeTypes>
+                    <attributeType name="Decimal"/>
+                </attributeTypes>
+            </property>
+            <property key="enablePopups" type="boolean" defaultValue="true">
+                <caption>Enable Feature Popups</caption>
+                <description>Show popups when clicking on features in dynamic layers</description>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Spatial Selection">
+            <property key="enableDrawingTools" type="boolean" defaultValue="false">
+                <caption>Enable Drawing Tools</caption>
+                <description>Allow users to draw shapes to select features within the drawn area</description>
+            </property>
+            <property key="drawingToolsPosition" type="enumeration" defaultValue="bottomleft">
+                <caption>Drawing Tools Position</caption>
+                <description>Position of the drawing tools on the map</description>
+                <enumerationValues>
+                    <enumerationValue key="topright">Top Right</enumerationValue>
+                    <enumerationValue key="topleft">Top Left</enumerationValue>
+                    <enumerationValue key="bottomright">Bottom Right</enumerationValue>
+                    <enumerationValue key="bottomleft">Bottom Left</enumerationValue>
+                </enumerationValues>
+            </property>
+            <property key="onSelectionAction" type="action" required="false">
+                <caption>On Selection Action</caption>
+                <description>Action to execute when features are selected (receives list of selected items)</description>
+            </property>
+            <property key="showSelectionCount" type="boolean" defaultValue="true">
+                <caption>Show Selection Count</caption>
+                <description>Display count of selected features</description>
+            </property>
+            <property key="clearSelectionOnDraw" type="boolean" defaultValue="true">
+                <caption>Clear Selection on New Drawing</caption>
+                <description>Clear previous selection when drawing a new shape</description>
+            </property>
+            <property key="showFeatureList" type="boolean" defaultValue="false">
+                <caption>Show Feature List</caption>
+                <description>Display a list of selected features with their details</description>
+            </property>
+            <property key="maxFeaturesInList" type="integer" defaultValue="10">
+                <caption>Max Features in List</caption>
+                <description>Maximum number of features to show in the details list</description>
+            </property>
+        </propertyGroup>
+    </properties>
+</widget>
