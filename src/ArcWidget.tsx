@@ -43,6 +43,7 @@ export function ArcWidget({
     clearSelectionOnDraw,
     showFeatureList,
     maxFeaturesInList,
+    attributeLabelMapping,
     class: className
 }: ArcWidgetContainerProps): ReactElement {
     const combinedClassName = `arcgis-map-widget ${className || ""}`.trim();
@@ -88,6 +89,7 @@ export function ArcWidget({
             clearSelectionOnDraw={clearSelectionOnDraw}
             showFeatureList={showFeatureList}
             maxFeaturesInList={maxFeaturesInList}
+            attributeLabelMapping={attributeLabelMapping}
             className={combinedClassName}
         />
     );

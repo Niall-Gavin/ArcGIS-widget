@@ -77,6 +77,7 @@ export interface ArcMapProps {
     clearSelectionOnDraw?: boolean;
     showFeatureList?: boolean;
     maxFeaturesInList?: number;
+    attributeLabelMapping?: string;
     className?: string;
 }
 
@@ -120,6 +121,7 @@ export function ArcMap({
     clearSelectionOnDraw,
     showFeatureList,
     maxFeaturesInList,
+    attributeLabelMapping,
     className
 }: ArcMapProps): ReactElement {
     const mapDiv = useRef<HTMLDivElement>(null);
@@ -132,6 +134,29 @@ export function ArcMap({
     const [selectedFeatures, setSelectedFeatures] = useState<any[]>([]);
     const [popupView, setPopupView] = useState<'list' | 'detail'>('list');
     const [currentFeature, setCurrentFeature] = useState<any>(null);
+    
+    // Parse attribute label mapping
+    const labelMapping = useRef<Record<string, string>>({});
+    useEffect(() => {
+        if (attributeLabelMapping) {
+            try {
+                labelMapping.current = JSON.parse(attributeLabelMapping);
+            } catch (error) {
+                console.warn("Invalid attribute label mapping JSON:", error);
+                labelMapping.current = {};
+            }
+        }
+    }, [attributeLabelMapping]);
+    
+    // Helper function to get custom label for an attribute
+    const getAttributeLabel = (key: string): string => {
+        // Check if there's a custom mapping
+        if (labelMapping.current[key]) {
+            return labelMapping.current[key];
+        }
+        // Default formatting: remove underscores and capitalize
+        return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
 
     useEffect(() => {
         if (!mapDiv.current) {
@@ -206,8 +231,8 @@ export function ArcMap({
                                                             key !== 'OBJECTID' && key !== 'ObjectID' && 
                                                             key !== 'Shape') {
                                                             
-                                                            // Format field name (remove underscores, capitalize)
-                                                            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                                            // Format field name using custom mapping or default formatting
+                                                            const label = getAttributeLabel(key);
                                                             
                                                             // Format value based on type
                                                             let displayValue: any = value;
@@ -218,6 +243,9 @@ export function ArcMap({
                                                                 } else if (key.toLowerCase().includes('mag') || key.toLowerCase().includes('depth')) {
                                                                     // Keep decimals for magnitude and depth
                                                                     displayValue = value.toFixed(2);
+                                                                } else if (key === 'FID' || key === 'fid') {
+                                                                    // Don't add commas to FID
+                                                                    displayValue = value.toString();
                                                                 } else if (Number.isInteger(value)) {
                                                                     displayValue = value.toLocaleString();
                                                                 } else {
@@ -737,7 +765,7 @@ export function ArcMap({
                     left: 0
                 }}
             />
-            {showSelectionCount && selectedCount > 0 && (
+            {showSelectionCount && selectedCount > 0 && selectedFeatures.length > 0 && (
                 <div
                     style={{
                         position: "fixed",
@@ -881,7 +909,7 @@ export function ArcMap({
                                         </div>
                                         {Object.entries(feature.attributes || {}).slice(0, 3).map(([key, value]) => (
                                             <div key={key} style={{ marginTop: "2px" }}>
-                                                <span style={{ color: "#666" }}>{key.replace(/_/g, ' ')}:</span> {String(value)}
+                                                <span style={{ color: "#666" }}>{getAttributeLabel(key)}:</span> {String(value)}
                                             </div>
                                         ))}
                                         {Object.keys(feature.attributes || {}).length > 3 && (
@@ -925,8 +953,8 @@ export function ArcMap({
                                                 return null;
                                             }
                                             
-                                            // Format field name
-                                            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                            // Format field name using custom mapping or default formatting
+                                            const label = getAttributeLabel(key);
                                             
                                             // Format value
                                             let displayValue: any = value;
@@ -935,6 +963,9 @@ export function ArcMap({
                                                     displayValue = new Date(value).toLocaleString();
                                                 } else if (key.toLowerCase().includes('mag') || key.toLowerCase().includes('depth')) {
                                                     displayValue = value.toFixed(2);
+                                                } else if (key === 'FID' || key === 'fid') {
+                                                    // Don't add commas to FID
+                                                    displayValue = value.toString();
                                                 } else if (Number.isInteger(value)) {
                                                     displayValue = value.toLocaleString();
                                                 } else {

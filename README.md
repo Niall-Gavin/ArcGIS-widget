@@ -2,6 +2,12 @@
 
 A comprehensive ArcGIS map widget for Mendix applications that provides interactive mapping capabilities with support for various layer types, spatial selection tools, and feature visualization.
 
+### Recent Updates
+- **Feature Navigation**: Click on blue feature names in the selection popup to view detailed attributes
+- **Custom Attribute Labels**: Configure custom display names for technical field names via JSON mapping
+- **Improved Selection Behavior**: Deleting selection shapes now properly clears the popup
+- **FID Field Support**: FID fields now display in popups without comma formatting
+
 ## Features
 
 - **Multiple Basemap Support**: Choose from various basemaps including streets, satellite, hybrid, topographic, and more
@@ -16,6 +22,10 @@ A comprehensive ArcGIS map widget for Mendix applications that provides interact
   - Layer list for visibility control
   - Zoom controls
 - **Feature List Display**: View detailed information about selected features with scrollable interface
+  - Navigate between features by clicking on feature names
+  - View all attributes in a detailed table format
+  - Back navigation to return to feature list
+- **Custom Attribute Labels**: Configure custom display names for feature attributes
 - **Responsive Design**: Adapts to container sizing with minimum height enforcement
 
 ## Usage
@@ -41,6 +51,13 @@ A comprehensive ArcGIS map widget for Mendix applications that provides interact
    - Enable drawing tools for spatial queries
    - Configure selection actions and feature list display
    - Set drawing tools position and selection behavior
+   - Features selected within drawn areas display in an interactive popup
+
+5. **Interaction Configuration** (New):
+   - Navigate to the "Interaction" tab in widget settings
+   - Configure custom attribute labels using JSON mapping
+   - Provides user-friendly names for technical field names
+   - All FID fields display without comma formatting
 
 ### Key Configuration Options
 
@@ -49,6 +66,9 @@ A comprehensive ArcGIS map widget for Mendix applications that provides interact
 - **UI Controls**: Positioning and visibility of search, legend, layer list
 - **Spatial Tools**: Drawing tools, selection actions, feature list display
 - **Layer Management**: Dynamic layer loading, visibility, and opacity
+- **Interaction Settings**: 
+  - Custom attribute label mapping (JSON format)
+  - Example: `{"TYPEPIPE": "Pipe Type", "Operator": "Operating Company"}`
 
 ## Issues, suggestions and feature requests
 

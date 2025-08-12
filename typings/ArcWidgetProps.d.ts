@@ -65,6 +65,7 @@ export interface ArcWidgetContainerProps {
     clearSelectionOnDraw: boolean;
     showFeatureList: boolean;
     maxFeaturesInList: number;
+    attributeLabelMapping: string;
 }
 
 export interface ArcWidgetPreviewProps {
@@ -117,4 +118,5 @@ export interface ArcWidgetPreviewProps {
     clearSelectionOnDraw: boolean;
     showFeatureList: boolean;
     maxFeaturesInList: number | null;
+    attributeLabelMapping: string;
 }

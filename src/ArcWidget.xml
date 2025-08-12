@@ -253,5 +253,11 @@
                 <description>Maximum number of features to show in the details list</description>
             </property>
         </propertyGroup>
+        <propertyGroup caption="Interaction">
+            <property key="attributeLabelMapping" type="string" required="false" multiline="true">
+                <caption>Attribute Label Mapping</caption>
+                <description>JSON mapping of attribute names to custom labels. Example: {"TYPEPIPE": "Pipe Type", "Operator": "Operating Company"}</description>
+            </property>
+        </propertyGroup>
     </properties>
 </widget>
