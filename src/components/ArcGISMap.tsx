@@ -130,6 +130,8 @@ export function ArcMap({
     const [error, setError] = useState<string | null>(null);
     const [selectedCount, setSelectedCount] = useState<number>(0);
     const [selectedFeatures, setSelectedFeatures] = useState<any[]>([]);
+    const [popupView, setPopupView] = useState<'list' | 'detail'>('list');
+    const [currentFeature, setCurrentFeature] = useState<any>(null);
 
     useEffect(() => {
         if (!mapDiv.current) {
@@ -202,7 +204,7 @@ export function ArcMap({
                                                     for (const [key, value] of Object.entries(attributes)) {
                                                         if (value !== null && value !== undefined && 
                                                             key !== 'OBJECTID' && key !== 'ObjectID' && 
-                                                            key !== 'FID' && key !== 'Shape') {
+                                                            key !== 'Shape') {
                                                             
                                                             // Format field name (remove underscores, capitalize)
                                                             const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -491,6 +493,28 @@ export function ArcMap({
                                             }
                                         });
 
+                                        // Handle deletion of drawings
+                                        sketch.on("delete", () => {
+                                            // Clear selected features when sketch is deleted
+                                            setSelectedCount(0);
+                                            setSelectedFeatures([]);
+                                            setPopupView('list');
+                                            setCurrentFeature(null);
+                                            
+                                            // Remove any highlight graphics from the selection layer
+                                            const graphics = selectionLayer.graphics.toArray();
+                                            // Keep only the sketch graphics, remove highlights
+                                            const sketchGraphics = graphics.filter((g: any) => {
+                                                // Check if it's a selection area (has fill symbol with specific color)
+                                                return g.symbol && g.symbol.color && 
+                                                       g.symbol.color[0] === 51 && 
+                                                       g.symbol.color[1] === 51 && 
+                                                       g.symbol.color[2] === 204;
+                                            });
+                                            selectionLayer.graphics.removeAll();
+                                            selectionLayer.graphics.addMany(sketchGraphics);
+                                        });
+
                                         // Function to perform spatial query
                                         const performSpatialQuery = (geometry: any, mapObj: any, geoEngine: any, GraphicClass: any, FillSymbol: any) => {
                                             const selectedFeatures: any[] = [];
@@ -730,17 +754,54 @@ export function ArcMap({
                         maxWidth: showFeatureList ? "600px" : "300px",
                         maxHeight: "80vh",
                         overflow: "hidden",
-                        border: "1px solid rgba(0,0,0,0.1)"
+                        border: "1px solid rgba(0,0,0,0.1)",
+                        display: "flex",
+                        flexDirection: "column"
                     }}
                 >
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: showFeatureList ? "16px" : "0" }}>
-                        <span style={{ fontWeight: "600" }}>
-                            {selectedCount} feature{selectedCount !== 1 ? 's' : ''} selected
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: showFeatureList ? "16px" : "0", flexShrink: 0 }}>
+                        {popupView === 'detail' && (
+                            <button
+                                onClick={() => {
+                                    setPopupView('list');
+                                    setCurrentFeature(null);
+                                }}
+                                style={{
+                                    background: "none",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    fontSize: "20px",
+                                    color: "#0066cc",
+                                    padding: "0",
+                                    marginRight: "12px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    transition: "color 0.2s"
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.color = "#0052a3";
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.color = "#0066cc";
+                                }}
+                                aria-label="Back to list"
+                            >
+                                ← Back
+                            </button>
+                        )}
+                        <span style={{ fontWeight: "600", flex: 1 }}>
+                            {popupView === 'list' 
+                                ? `${selectedCount} feature${selectedCount !== 1 ? 's' : ''} selected`
+                                : (currentFeature?.type === "dataSource" ? "Data Point" : currentFeature?.layerTitle || "Feature Details")
+                            }
                         </span>
                         <button
                             onClick={() => {
                                 setSelectedCount(0);
                                 setSelectedFeatures([]);
+                                setPopupView('list');
+                                setCurrentFeature(null);
                             }}
                             style={{
                                 background: "none",
@@ -769,12 +830,26 @@ export function ArcMap({
                         </button>
                     </div>
                     
-                    {showFeatureList && selectedFeatures.length > 0 && (
-                        <div style={{ marginTop: "12px" }}>
-                            <div style={{ fontSize: "14px", fontWeight: "600", marginBottom: "8px", color: "#555" }}>
+                    {showFeatureList && selectedFeatures.length > 0 && popupView === 'list' && (
+                        <div style={{ 
+                            marginTop: "12px", 
+                            display: "flex", 
+                            flexDirection: "column", 
+                            flex: 1,
+                            minHeight: 0
+                        }}>
+                            <div style={{ fontSize: "14px", fontWeight: "600", marginBottom: "8px", color: "#555", flexShrink: 0 }}>
                                 Feature Details:
                             </div>
-                            <div style={{ maxHeight: "50vh", overflow: "auto", border: "1px solid #eee", borderRadius: "6px", padding: "12px", backgroundColor: "#fafafa" }}>
+                            <div style={{ 
+                                flex: 1,
+                                overflow: "auto", 
+                                border: "1px solid #eee", 
+                                borderRadius: "6px", 
+                                padding: "12px", 
+                                backgroundColor: "#fafafa",
+                                minHeight: 0
+                            }}>
                                 {selectedFeatures.slice(0, maxFeaturesInList || 10).map((feature, index) => (
                                     <div 
                                         key={index} 
@@ -784,7 +859,24 @@ export function ArcMap({
                                             fontSize: "13px"
                                         }}
                                     >
-                                        <div style={{ fontWeight: "600", color: "#0066cc" }}>
+                                        <div 
+                                            style={{ 
+                                                fontWeight: "600", 
+                                                color: "#0066cc",
+                                                cursor: "pointer",
+                                                textDecoration: "underline"
+                                            }}
+                                            onClick={() => {
+                                                setCurrentFeature(feature);
+                                                setPopupView('detail');
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.color = "#0052a3";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.color = "#0066cc";
+                                            }}
+                                        >
                                             {feature.type === "dataSource" ? "Data Point" : feature.layerTitle || "Feature"}
                                         </div>
                                         {Object.entries(feature.attributes || {}).slice(0, 3).map(([key, value]) => (
@@ -804,6 +896,78 @@ export function ArcMap({
                                         Showing {maxFeaturesInList || 10} of {selectedFeatures.length} features
                                     </div>
                                 )}
+                            </div>
+                        </div>
+                    )}
+                    
+                    {popupView === 'detail' && currentFeature && (
+                        <div style={{ 
+                            marginTop: "12px", 
+                            display: "flex", 
+                            flexDirection: "column", 
+                            flex: 1,
+                            minHeight: 0
+                        }}>
+                            <div style={{ 
+                                flex: 1,
+                                overflow: "auto", 
+                                border: "1px solid #eee", 
+                                borderRadius: "6px", 
+                                padding: "12px", 
+                                backgroundColor: "#fafafa",
+                                minHeight: 0
+                            }}>
+                                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                                    <tbody>
+                                        {Object.entries(currentFeature.attributes || {}).map(([key, value]) => {
+                                            // Skip internal fields
+                                            if (key === 'OBJECTID' || key === 'ObjectID' || key === 'Shape') {
+                                                return null;
+                                            }
+                                            
+                                            // Format field name
+                                            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                            
+                                            // Format value
+                                            let displayValue: any = value;
+                                            if (typeof value === 'number') {
+                                                if ((key.toLowerCase().includes('time') || key.toLowerCase().includes('date')) && value > 1000000000) {
+                                                    displayValue = new Date(value).toLocaleString();
+                                                } else if (key.toLowerCase().includes('mag') || key.toLowerCase().includes('depth')) {
+                                                    displayValue = value.toFixed(2);
+                                                } else if (Number.isInteger(value)) {
+                                                    displayValue = value.toLocaleString();
+                                                } else {
+                                                    displayValue = value.toFixed(4);
+                                                }
+                                            } else if (value === null || value === undefined) {
+                                                displayValue = '-';
+                                            } else {
+                                                displayValue = String(value);
+                                            }
+                                            
+                                            return (
+                                                <tr key={key} style={{ borderBottom: "1px solid #f0f0f0" }}>
+                                                    <td style={{ 
+                                                        padding: "8px", 
+                                                        fontWeight: "600", 
+                                                        color: "#666",
+                                                        width: "40%",
+                                                        verticalAlign: "top"
+                                                    }}>
+                                                        {label}
+                                                    </td>
+                                                    <td style={{ 
+                                                        padding: "8px", 
+                                                        color: "#333"
+                                                    }}>
+                                                        {displayValue}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        }).filter(Boolean)}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     )}
