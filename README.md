@@ -50,10 +50,6 @@ A comprehensive ArcGIS map widget for Mendix applications that provides interact
 - **Spatial Tools**: Drawing tools, selection actions, feature list display
 - **Layer Management**: Dynamic layer loading, visibility, and opacity
 
-## Demo project
-
-See the widget in action with earthquake data visualization and spatial selection capabilities.
-
 ## Issues, suggestions and feature requests
 
 Please report issues and feature requests in the [GitHub Issues](https://github.com/NiallPG/arcgis-widget-project/issues) section.
@@ -66,3 +62,30 @@ Please report issues and feature requests in the [GitHub Issues](https://github.
     - the bundle will be included in a `dist` folder in the root directory of the project;
     - the bundle will be included in the `deployment` and `widgets` folder of the Mendix test project.
 1. Run `npm run build` to create a production build of the widget.
+
+### Troubleshooting
+
+If you encounter build errors related to missing modules (e.g., "Cannot find module '../utils/migration'"), try the following steps:
+
+1. Remove existing dependencies:
+   ```bash
+   rm -rf node_modules package-lock.json
+   ```
+
+2. Reinstall dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Try building again:
+   ```bash
+   npm run build
+   ```
+
+This typically resolves issues with outdated or corrupted dependency installations.
+
+### System Requirements
+
+- Node.js >= 16
+- npm >= 8 (recommended: npm >= 10)
+- Mendix Studio Pro (for testing the widget)
